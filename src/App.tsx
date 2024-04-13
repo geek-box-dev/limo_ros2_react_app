@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import ROSLIB, { Ros } from "roslib";
 import logo from "./logo.svg";
 import "./App.css";
+import { Controller } from "./components/Controller";
 
 function App() {
   let ros: any = undefined;
@@ -55,7 +56,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <Controller />
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
