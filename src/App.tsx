@@ -53,7 +53,9 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <div className="App" onTouchStart={e => {
+      console.log(e)
+    }}>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
