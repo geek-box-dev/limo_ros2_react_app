@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ROSLIB, { Ros } from "roslib";
-import logo from "./logo.svg";
 import "./App.css";
 import { Controller } from "./components/Controller";
 
 function App() {
-  let ros: any = undefined;
+  const [ros, setRos] = useState<Ros | undefined>(undefined);
 
   useEffect(() => {
     const _ros = new ROSLIB.Ros({
@@ -14,7 +13,7 @@ function App() {
     console.log("API called");
 
     _ros.on("connection", () => {
-      ros = _ros;
+      setRos(_ros);
       console.log("Connected to ROSBridge WebSocket server.");
     });
 
@@ -24,6 +23,7 @@ function App() {
 
     _ros.on("close", function () {
       console.log("Connection to ROSBridge WebSocket server closed.");
+      setRos(undefined);
     });
   }, []);
 
@@ -51,14 +51,12 @@ function App() {
       },
     });
     cmdVel.publish(twist);
-  }, []);
+  }, [ros]);
 
   return (
-    <div className="App" onTouchStart={e => {
-      console.log(e)
-    }}>
+    <div className="App">
       <header className="App-header">
-        <Controller />
+        <Controller ros={ros}/>
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>

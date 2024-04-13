@@ -1,9 +1,37 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import ROSLIB, { Ros } from "roslib";
 
-export function Controller() {
+const MAX_SPEED = 3;
+
+export function Controller({ ros }: { ros: Ros | undefined }) {
   const [state, setState] = useState([0, 0]);
-
   const ref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!ros) return;
+    const cmdVel = new ROSLIB.Topic({
+      ros,
+      name: "/cmd_vel",
+      messageType: "geometry_msgs/Twist",
+    });
+    const twist = new ROSLIB.Message({
+      linear: {
+        x:
+          ((state[1] > 0 ? -1 : 1) *
+            Math.sqrt(state[1] * state[1] + state[0] * state[0]) *
+            MAX_SPEED) /
+          75 /
+          2,
+        y: 0,
+        z: 0,
+      },
+      angular: {
+        x: 0,
+        y: 0,
+        z: -Math.atan2(state[0], -state[1]),
+      },
+    });
+    cmdVel.publish(twist);
+  }, [ros, state]);
   return (
     <div style={{ position: "relative" }}>
       <div
@@ -14,7 +42,6 @@ export function Controller() {
           borderRadius: "50%",
         }}
         onTouchStart={(event) => {
-          //console.log(ref.current?.getBoundingClientRect());
           if (ref.current === null) {
             return;
           }
@@ -25,13 +52,12 @@ export function Controller() {
           const touchX = event.touches[0].clientX;
           const touchY = event.touches[0].clientY;
 
-          const diffX = touchX - centerX;
-          const diffY = touchY - centerY;
+          const diffX = Math.max(Math.min(touchX - centerX, 75 / 2), -75 / 2);
+          const diffY = Math.max(Math.min(touchY - centerY, 75 / 2), -75 / 2);
 
           setState([diffX, diffY]);
         }}
         onTouchMove={(event) => {
-          //console.log(ref.current?.getBoundingClientRect());
           if (ref.current === null) {
             return;
           }
